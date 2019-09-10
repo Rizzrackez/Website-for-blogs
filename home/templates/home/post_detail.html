@@ -1,0 +1,44 @@
+{% extends 'wrapper.html' %}
+{% load crispy_forms_tags %}
+{% block body %}
+
+
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="">{{ object.user.get_full_name }}</a>
+              <small class="text-muted">{{ object.created|date:"F d, Y" }}</small>
+            </div>
+            <h2><a class="article-title" >{{ object.title }}</a></h2>
+            <p class="article-content">{{ object.post }}</p>
+
+
+              <h4 class="comment">Comments {{ post.comments.count }}:</h4>
+                {% for comment in post.comments.all %}
+                    <div class="article-metadata">
+                  <p> By: {{ comment.user }}: {{ comment.content }}</p>
+                    </div>
+                {% empty %}
+                    <p>This post has not comments</p>
+
+                {% endfor %}
+
+              <a href="{% url 'home:add_comment' pk=post.id%}">leave a comment</a>
+
+
+
+                 {% if object.user == user %}
+                  <div>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'home:post-update' object.id %}">Update</a>
+                    <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'home:post-delete' object.id %}">Delete</a>
+                  </div>
+                {% endif %}
+          </div>
+
+        </article>
+
+
+
+
+{% endblock %}
+
