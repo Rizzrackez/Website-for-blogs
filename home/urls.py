@@ -1,23 +1,5 @@
 from django.urls import path
-from .views import (
-    PostListView,
-    PostDetailView,
-    PostCreateView,
-    PostUpdateView,
-    PostDeleteView,
-    UserPostListView,
-    tags_list,
-    tag_detail,
-    TagCreate,
-    view_home,
-    page_home,
-    add_comment,
-    # CommentListView,
-    # CommentDetailView,
-    # CommentCreateView,
-
-)
-
+from .views import *
 app_name = 'home'
 
 
@@ -28,15 +10,13 @@ urlpatterns = [
     # path('comment/create/', CommentCreateView.as_view(), name='comment-create'),
 
     path('comment/<int:pk>/', add_comment, name='add_comment'),
-
-    path('view_home/', view_home, name='view_home'),
-    path('all_posts', PostListView.as_view(), name='blog-home'),
-    path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
-    path('user/<str:username>/', UserPostListView.as_view(), name='user-posts'),
-    path('post/create/', PostCreateView.as_view(), name='post-create'),
-    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
-    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+    path('all_posts/', posts_view, name='blog-home'),
+    path('post/<int:pk>/', post_detail, name='post-detail'),
+    path('user/<int:pk>/posts', user_posts, name='user_posts'),
+    path('post/create/', post_create, name='post_create'),
+    path('post/<int:pk>/update/', post_update, name='post_update'),
+    path('post/<int:pk>/delete/', post_delete, name='post_delete'),
     path('tags/', tags_list, name='tags_list_url'),
-    path('tag/create', TagCreate.as_view(), name='tag_create_url'),
     path('tag/<str:slug>', tag_detail, name='tag_detail_url')
     ]
+

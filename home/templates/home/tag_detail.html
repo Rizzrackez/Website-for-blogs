@@ -9,7 +9,7 @@
       <article class="media content-section">
         <div class="media-body">
           <div class="article-metadata">
-            <a class="mr-2" href="{% url 'home:user-posts' post.user.username %}">{{ post.user }}</a>
+            <a class="mr-2" href="{% url 'accounts:user_profile' pk=user.pk%}">{{ post.user }}</a>
             <small class="text-muted">{{ post.created|date:"F d, Y" }}</small>
           </div>
           <h2><a class="article-title" href="{% url 'home:post-detail' post.id%}">{{ post.title }}</a></h2>

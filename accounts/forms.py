@@ -7,7 +7,6 @@ from django.contrib.auth.forms import PasswordResetForm
 
 
 class UserRegisterForm(UserCreationForm):
-    email = forms.EmailField()
 
     class Meta:
         model = User
@@ -15,16 +14,31 @@ class UserRegisterForm(UserCreationForm):
 
 
 class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField()
 
     class Meta:
         model = User
         fields = ['username', 'email']
 
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'Enter name', 'class': 'input_textinput'}),
+            'email': forms.TextInput(attrs={'placeholder': 'Enter new email', 'class': 'input_textinput'}),
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(UserUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['username'].label = 'Смена ника'
+        self.fields['username'].hilp_text = 'Смена почты'
+        self.fields['email'].label = 'Смена почты'
+
+
+
 
 class ProfileUpdateForm(forms.ModelForm):
+    images = forms.ImageField(label='')
+
     class Meta:
+
         model = UserProfile
         fields = ['images']
-
 

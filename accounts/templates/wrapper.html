@@ -10,14 +10,16 @@
     <meta charset="UTF-8">
 
     <!-- Icon on site(RoflanWhat) -->
-    <link rel="shortcut icon" type="image/png" href="{% static 'icon/roflan.ico' %}"/>
+    <link rel="shortcut icon" type="image/png" href="{% static 'icon/r.ico' %}"/>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-
+    <!-- Google font -->
+    <link href="https://fonts.googleapis.com/css?family=Orbitron&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'accounts/style.css' %}" type="text/css">
 
@@ -29,40 +31,38 @@
 
 
   <header class="site-header">
-      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top">
         <a class="navbar-brand" href="{% url 'home:page_home' %}">
-          <img src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="logo" width="30" height="30">
-          Rizzrack Blog
+           <img class='top-img' src="/static/4.svg" alt="logo" width="30" height="30">izzrack Blog
         </a>
-        <div class="container">
 
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-          </button>
+
+        <div class="container">
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
-              <a class="nav-item nav-link" href="{% url 'home:blog-home' %}">Posts</a>
-              <a class="nav-item nav-link" href="{% url 'accounts:profile' %}">Profile</a>
-              <a class="nav-item nav-link" href="{% url 'home:post-create' %}">New Post</a>
-              <a class="nav-item nav-link" href="{% url 'home:tags_list_url' %}">Tags</a>
+              {% if user.is_authenticated %}
+                  <a class="nav-item nav-link active" href="{% url 'home:blog-home' %}">Posts</a>
+                  <a class="nav-item nav-link active" href="{% url 'accounts:profile' %}">Profile</a>
+              {% endif %}
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
               {% if user.is_authenticated %}
-             <a class="nav-item nav-link" href="{% url 'accounts:logout' %}">Logout</a>
+             <a class="nav-item nav-link active" href="{% url 'accounts:logout' %}">Logout</a>
               {% else %}
-                <a class="nav-item nav-link" href="{% url 'accounts:login' %}">Login</a>
-                <a class="nav-item nav-link" href="{% url 'accounts:registration' %}">Register</a>
+                <a class="nav-item nav-link active" href="{% url 'accounts:login' %}">Login</a>
+                <a class="nav-item nav-link active" href="{% url 'accounts:registration' %}">Register</a>
               {% endif %}
             </div>
           </div>
         </div>
-        <form action="{% url 'home:view_home' %}" class="form-search form-inline my-2 my-lg-0">
-           <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search"name="search">
-           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-         </form>
+          {% block search %}
+
+          {% endblock %}
       </nav>
     </header>
+
+
 
     <main role="main" class="container">
       <div class="row">
@@ -71,17 +71,8 @@
           {% endblock %}
         </div>
         <div class="col-md-4">
-          <div class="content-section">
-            <h3>My links</h3>
-            <p class='text-muted'>Here are my social networks.
-              <ul class="list-group">
-
-                <li class="list-group-item list-group-item-light"><a href="https://vk.com/pudge9k">Vk</a></li>
-                <li href="" class="list-group-item list-group-item-light"><a href="https://steamcommunity.com/id/otdelenie4/">Steam</a></li>
-                <li class="list-group-item list-group-item-light"><a href="https://osu.ppy.sh/users/13943323">Osu</a></li>
-              </ul>
-            </p>
-          </div>
+        {% block col-md-4 %}
+        {% endblock%}
         </div>
       </div>
     </main>

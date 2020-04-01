@@ -12,7 +12,7 @@ def gen_slug(s):
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=100, default='Post')
+    title = models.CharField(max_length=100 )
     post = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag', blank=True, related_name='posts')
@@ -50,12 +50,11 @@ class Comment(models.Model):
     approved = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.content
+        return str(self.user) + ": " + str(self.content)
 
     def approved(self):
         self.approved = True
         self.save()
-
 
     def get_absolute_url(self):
         return reverse('home:comment-detail', kwargs={'pk': self.pk})

@@ -7,13 +7,28 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.edit import UpdateView
 from django.views.generic.edit import DeleteView
-from .forms import TagForm, CommentForm
+from home.forms import *
 from django.db.models import Q
 from django.views.generic import View
+from django.core.paginator import Paginator
 
 
-# get all POST object
+def page_home(request):
+    return render(request, 'home_page.html')
 
+
+# def view_home(request):
+#     query = request.GET.get('search', '')
+#     if query:
+#         posts = Post.objects.filter(Q(title__icontains=query) | Q(post__icontains=query))
+#     else:
+#         posts = Post.objects.all()
+#
+#     context = {
+#         'posts': posts
+#     }
+#     return render(request, 'home/view_home.html', context)
+#
 
 def add_comment(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -27,132 +42,121 @@ def add_comment(request, pk):
             return redirect('home:post-detail', pk=post.id)
     else:
         form = CommentForm()
-    context = {'form': form}
+    context = {
+        'form': form
+    }
     return render(request, 'home/add_comment.html', context)
 
 
-def page_home(request):
-    return render(request, 'home/page_home.html')
-
-
-def view_home(request):
-    query = request.GET.get('search', '')
-    if query:
-        posts = Post.objects.filter(Q(title__icontains=query) | Q(post__icontains=query))
-    else:
-        posts = Post.objects.all()
+def posts_view(request):
+    posts = Post.objects.all().order_by('-created')
+    tags = Tag.objects.all()
+    paginator = Paginator(posts, 4)  # Show 25 contacts per page.
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     context = {
+        'page_obj': page_obj,
+        'tags': tags
+    }
+    return render(request, 'home/posts.html', context)
+
+
+def post_detail(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            form.instance.user = request.user
+            form.instance.post = post
+            form.save()
+
+            context = {
+                'post': post,
+                'form': form
+            }
+
+            return render(request, 'home/post_detail.html', context)
+
+    else:
+        form = CommentForm()
+
+    context = {
+        'post': post,
+        'form': form
+    }
+
+    return render(request, 'home/post_detail.html', context)
+
+
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        form.instance.user = request.user
+        if form.is_valid():
+            form.save()
+            return redirect('home:blog-home')
+    else:
+        form = PostForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'home/post_create.html', context)
+
+
+def post_update(request, pk):
+    post = Post.objects.get(pk=pk)
+    if request.method == 'POST':
+
+        form = PostUpdateForm(request.POST, instance=post)
+        if form.is_valid():
+
+            post.title = form['title'].value()
+            post.post = form['post'].value()
+            post.save()
+
+            return redirect('home:blog-home')
+    else:
+        form = PostUpdateForm(instance=post)
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'home/post_update.html', context)
+
+
+def post_delete(request, pk):
+    post = Post.objects.get(pk=pk)
+    post.delete()
+
+    return redirect('home:blog-home')
+
+
+def user_posts(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    posts = Post.objects.filter(user=user).order_by('-created')
+    context = {
+        'user': user,
         'posts': posts
     }
-    return render(request, 'home/view_home.html', context)
-
-
-# class CommentListView(ListView):
-#     model = Comment
-#     template_name = 'home/comment.html'
-#     context_object_name = 'comments '
-#
-#
-# class CommentDetailView(DetailView):
-#     model = Comment
-#
-#
-# class CommentCreateView(LoginRequiredMixin, CreateView):
-#     model = Comment
-#     fields = ['content']
-#
-#     def form_valid(self, form):
-#         form.instance.user = self.request.user
-#         return super().form_valid(form)
-#
-#
-# def comments_list(request):
-#     args = {'comments': Comment.objects.all()}
-#     return render(request, 'home/comment.html', args)
-
-
-class PostListView(ListView):
-
-    model = Post
-    template_name = 'home.html'
-    context_object_name = 'posts'
-    ordering = ['-created']
-    paginate_by = 4
-
-
-class UserPostListView(ListView):
-    model = Post
-    template_name = 'home/user_posts.html'  # <app>/<model>_<viewtype>.html
-    context_object_name = 'posts'
-    paginate_by = 4
-
-    def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Post.objects.filter(user=user).order_by('-created')
-
-
-class PostDetailView(DetailView):
-    model = Post
-
-
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields = ['title', 'post', 'tags']
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    fields = ['title', 'post', 'tags']
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.user:
-            return True
-        return False
-
-
-class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Post
-    success_url = '/'
-
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.user:
-            return True
-        return False
+    return render(request, 'home/user_posts.html', context)
 
 
 def tags_list(request):
-    args = {'tags': Tag.objects.all()}
-    return render(request, 'home/tags_list.html', args)
+    context = {
+        'tags': Tag.objects.all()
+    }
+    return render(request, 'home/tags_list.html', context)
 
 
 def tag_detail(request, slug):
-    tag = Tag.objects.get(slug__iexact=slug)
-    return render(request, 'home/tag_detail.html', context={'tag': tag})
-
-
-class TagCreate(View):
-    def get(self, request):
-        form = TagForm()
-        return render(request, 'home/tag_create.html', context={'form': form})
-
-    def post(self, request):
-        bound_form = TagForm(request.POST)
-
-        if bound_form.is_valid():
-            new_tag = bound_form.save()
-            return redirect(new_tag)
-        return render(request, 'home/tag_create.html', context={'form': bound_form})
-
-
+    tag = Tag.objects.get(slug=slug)
+    context = {
+        'tag': tag
+    }
+    return render(request, 'home/tag_detail.html', context)
 

@@ -8,23 +8,11 @@ from django.urls import reverse
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    images = models.ImageField(default='default.jpg', upload_to='profile_image', blank = True)
+    images = models.ImageField(default='default_image.png', upload_to='profile_image', blank = True)
 
-
-    @receiver(post_save, sender=User)
-    def create_user_profile(sender, instance, created, **kwargs):
-        if created:
-            UserProfile.objects.create(user=instance)
-
-    @receiver(post_save, sender=User)
-    def save_user_profile(sender, instance, **kwargs):
-        instance.userprofile.save()
 
     def __str__(self):
         return f'{self.user.username} Profile'
-
-    def get_absolute_url(self):
-        return reverse('accounts:profile', kwargs={'pk': self.pk})
 
 
 # Method create images a 300x300 px

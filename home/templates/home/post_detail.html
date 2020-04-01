@@ -6,36 +6,48 @@
         <article class="media content-section">
           <div class="media-body">
             <div class="article-metadata">
-              <a class="mr-2" href="">{{ object.user.get_full_name }}</a>
-              <small class="text-muted">{{ object.created|date:"F d, Y" }}</small>
-            </div>
-            <h2><a class="article-title" >{{ object.title }}</a></h2>
-            <p class="article-content">{{ object.post }}</p>
+              <a class="mr-2" href="">{{ post.user.get_full_name }}</a>
+                <h2><a class="article-title" >{{ post.title }}</a></h2>
 
+            </div>
+
+            <p class="article-content">{{ post.post }} </p>
+            <small class="">{{ post.created|date:"F d, Y" }}</small>
+
+
+            <form method="POST">
+                {% csrf_token %}
+
+                    {{ form }}
+
+                <div class="form-group">
+                    <button class="btn float-right green-btn" type="submit">Submit</button>
+                </div>
+            </form>
 
               <h4 class="comment">Comments {{ post.comments.count }}:</h4>
                 {% for comment in post.comments.all %}
                     <div class="article-metadata">
-                  <p> By: {{ comment.user }}: {{ comment.content }}</p>
+                  <p> By {{ comment.user }}: {{ comment.content }}</p>
                     </div>
                 {% empty %}
                     <p>This post has not comments</p>
 
                 {% endfor %}
 
-              <a href="{% url 'home:add_comment' pk=post.id%}">leave a comment</a>
-
-
-
-                 {% if object.user == user %}
+                               {% if request.user.id == post.user.id %}
                   <div>
-                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'home:post-update' object.id %}">Update</a>
-                    <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'home:post-delete' object.id %}">Delete</a>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'home:post_update' pk=post.pk %}">Update</a>
+                    <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'home:post_delete' pk=post.pk %}">Delete</a>
                   </div>
                 {% endif %}
+
           </div>
 
+
         </article>
+
+
 
 
 

@@ -12,19 +12,22 @@
           <p class="text-secondary">{{ user.email }}</p>
         </div>
       </div>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Profile Info</legend>
-                {{ u_form|crispy }}
-                {{ p_form|crispy }}
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Update</button>
-            </div>
-
-        </form>
     </div>
 
 {% endblock %}
 
+
+{% block col-md-4 %}
+
+<div class="content-section">
+    <h3 class="text-center">Menu</h3>
+          <ul class="list-group">
+            <li class="list-group-item"><a href="{% url 'accounts:profile_settings' %}">Settings</a></li>
+              <li class="list-group-item"><a href="">Friend</a></li>
+              <li class="list-group-item"><a href="{% url 'home:user_posts' pk=user.id %}">Your posts</a></li>
+              <li class="list-group-item"><a href="{% url 'home:post_create' %}">New Post</a></li>
+          </ul>
+
+</div>
+
+{% endblock %}

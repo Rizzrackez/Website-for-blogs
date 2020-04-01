@@ -1,36 +1,56 @@
 from django import forms
-from .models import Tag, Comment
+from home.models import *
 from django.core.exceptions import ValidationError
 
 
-class TagForm(forms.ModelForm):
+class PostForm(forms.ModelForm):
+
     class Meta:
-        model = Tag
-        fields = ['title', 'slug']
+        model = Post
+        fields = ['title', 'post', 'tags']
 
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'slug': forms.TextInput(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'placeholder': 'Enter title', 'class': 'input_textinput'}),
+            'post': forms.Textarea(attrs={'placeholder': 'Enter content text', 'class': 'input_textarea'}),
+
         }
 
-    def clean_slug(self):
-        new_slug = self.cleaned_data['slug'].lower()
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        self.fields['title'].label = ''
+        self.fields['post'].label = ''
+        self.fields['tags'].label = ''
 
-        if new_slug == 'create':
-            raise ValidationError('Slug may not be "Create"')
-        if Tag.objects.filter(slug__iexact=new_slug).count():
-            raise ValidationError('Slug must be unique. We have "{}" slug already'.format(new_slug))
-        return new_slug
 
-    def save(self):
-        new_tag = Tag.objects.create(
-            title = self.cleaned_data['title'],
-            slug = self.cleaned_data['slug']
-        )
-        return new_tag
+class PostUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'post']
+
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Enter title', 'class': 'input_textinput'}),
+            'post': forms.Textarea(attrs={'placeholder': 'Enter content text', 'class': 'input_textarea'}),
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PostUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['title'].label = ''
+        self.fields['post'].label = ''
 
 
 class CommentForm(forms.ModelForm):
+
     class Meta:
         model = Comment
         fields = ['content']
+
+        widgets = {
+            'content': forms.Textarea(attrs={'placeholder': 'Comment text', 'class': 'input_comments_area'}),
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CommentForm, self).__init__(*args, **kwargs)
+        self.fields['content'].label = ''
+

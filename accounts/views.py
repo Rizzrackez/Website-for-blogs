@@ -1,13 +1,8 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
-from accounts.forms import (
-    UserUpdateForm,
-    UserRegisterForm,
-    ProfileUpdateForm,
-
-)
+from django.shortcuts import render, redirect, get_object_or_404
+from accounts.forms import *
 from django.contrib.auth.models import User
-from accounts.models import UserProfile
+from accounts.models import *
+from home.models import *
 from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash, authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -33,27 +28,10 @@ def registration(request):
 
 # @login_required
 def profile(request):
-    if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST,
-                                   request.FILES,
-                                   instance=request.user.userprofile)
-
-        if u_form.is_valid() and p_form.is_valid():
-            u_form.save()
-            p_form.save()
-            messages.success(request, f'Your accounts hac been updated!')
-            return redirect('accounts:profile')
-    else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.userprofile)
-
     context = {
-        'u_form': u_form,
-        'p_form': p_form,
+
         'users': User.objects.all(),
     }
-
     return render(request, 'accounts/profile.html', context)
 
 
@@ -74,3 +52,38 @@ def change_password(request):
         return render(request, 'accounts/change-password.html', args)
 
 
+def user_profile(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    posts = Post.objects.filter(user=user)
+
+    context = {
+        'user': user,
+        'posts': posts
+    }
+
+    return render(request, 'accounts/user_profile.html', context)
+
+
+def profile_settings(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST,
+                                   request.FILES,
+                                   instance=request.user.userprofile)
+
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            return redirect('accounts:profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm( instance=request.user.userprofile)
+
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+        'users': User.objects.all(),
+    }
+
+    return render(request, 'accounts/profile_settings.html', context)
